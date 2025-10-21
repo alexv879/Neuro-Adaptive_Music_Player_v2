@@ -1,0 +1,5 @@
+numpy
+scipy
+pygame
+openai
+requests

@@ -1,0 +1,12 @@
+numpy
+matplotlib
+scipy
+pyedflib
+PyWavelets
+pytest
+nbconvert
+chardet
+nbformat
+nbclient
+jupyterlab
+ipykernel
