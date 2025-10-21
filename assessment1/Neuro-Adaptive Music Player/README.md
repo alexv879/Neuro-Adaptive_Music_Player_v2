@@ -135,4 +135,4 @@ Upgrade any commercial (Bluetooth or wired) headset with EEG capability using ea
 - Upgrade your headset to a brain-driven device—perfect for DIY neurotech, research, productivity tools, and neuro-adaptive music or game integration!
 
 ## License
-Educational use only. Ensure compliance with music copyrights.
+Proprietary license. See root LICENSE file. Commercial use, especially for neural/EEG applications, requires explicit permission. Educational use only for CMP9780M assessment.
