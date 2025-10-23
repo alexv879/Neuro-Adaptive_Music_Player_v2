@@ -5,8 +5,8 @@ LLM-Powered Music Recommendation Pipeline
 Complete end-to-end demonstration of EEG-to-music pipeline with
 dynamic LLM-based recommendations:
 
-EEG → Preprocessing → Feature Extraction → Emotion Detection →
-LLM Mood Analysis → Dynamic Track Recommendations → Spotify Playback
+EEG -> Preprocessing -> Feature Extraction -> Emotion Detection ->
+LLM Mood Analysis -> Dynamic Track Recommendations -> Spotify Playback
 
 This example shows how to integrate the LLM recommender into the
 existing Neuro-Adaptive Music Player v2 architecture for creative,
@@ -87,7 +87,7 @@ class LLMNeuroAdaptiveMusicPlayer:
         2. Preprocessing (filtering, artifact removal)
         3. Feature Extraction (band powers, FAA, statistics)
         4. Emotion Recognition (CNN+BiLSTM or mock)
-        5. **LLM Mood Analysis** (convert emotion → descriptive mood tag)
+        5. **LLM Mood Analysis** (convert emotion -> descriptive mood tag)
         6. **Dynamic Recommendation** (GPT-4 generates track suggestions)
         7. Spotify Playback (via existing music engine)
     """
@@ -121,14 +121,14 @@ class LLMNeuroAdaptiveMusicPlayer:
             bandpass_high=config.BANDPASS_HIGHCUT,
             notch_freq=config.NOTCH_FREQ
         )
-        logger.info("✓ Preprocessor initialized")
+        logger.info("[OK] Preprocessor initialized")
         
         # Initialize feature extraction
         self.feature_extractor = EEGFeatureExtractor(
             fs=config.SAMPLING_RATE,
             bands=config.FREQ_BANDS
         )
-        logger.info("✓ Feature extractor initialized")
+        logger.info("[OK] Feature extractor initialized")
         
         # Initialize emotion recognition model (optional)
         self.model = None
@@ -140,11 +140,11 @@ class LLMNeuroAdaptiveMusicPlayer:
                     model_name="emotion_classifier"
                 )
                 self.model.load_model(model_path)
-                logger.info(f"✓ Emotion model loaded from {model_path}")
+                logger.info(f"[OK] Emotion model loaded from {model_path}")
             except Exception as e:
                 logger.warning(f"Failed to load model: {e}. Using mock predictions.")
         else:
-            logger.warning("⚠ TensorFlow not available or no model path. Using mock predictions.")
+            logger.warning("[WARNING] TensorFlow not available or no model path. Using mock predictions.")
         
         # Initialize LLM recommender (KEY NEW COMPONENT)
         self.llm_recommender = LLMMusicRecommender(
@@ -153,7 +153,7 @@ class LLMNeuroAdaptiveMusicPlayer:
             temperature=0.7,
             enable_fallback=True
         )
-        logger.info(f"✓ LLM recommender initialized ({llm_model})")
+        logger.info(f"[OK] LLM recommender initialized ({llm_model})")
         
         # Emotion label mapping
         self.emotion_labels = {
@@ -165,7 +165,7 @@ class LLMNeuroAdaptiveMusicPlayer:
         }
         
         logger.info("=" * 70)
-        logger.info("✓ LLM-Enhanced Neuro-Adaptive Music Player Ready!")
+        logger.info("[OK] LLM-Enhanced Neuro-Adaptive Music Player Ready!")
         logger.info("=" * 70)
     
     def process_eeg_and_recommend(
@@ -176,7 +176,7 @@ class LLMNeuroAdaptiveMusicPlayer:
         verbose: bool = True
     ) -> Tuple[EmotionCategory, float, List[LLMTrackRecommendation]]:
         """
-        Complete pipeline: EEG → Emotion → LLM → Track Recommendations.
+        Complete pipeline: EEG -> Emotion -> LLM -> Track Recommendations.
         
         Args:
             eeg_data: Raw EEG data (n_channels, n_samples)
@@ -200,7 +200,7 @@ class LLMNeuroAdaptiveMusicPlayer:
         preprocess_time = (time.time() - start_time) * 1000
         
         if verbose:
-            logger.info(f"[1/5] ✓ Preprocessing complete ({preprocess_time:.2f}ms)")
+            logger.info(f"[1/5] [OK] Preprocessing complete ({preprocess_time:.2f}ms)")
         
         # =====================================================================
         # STEP 2: FEATURE EXTRACTION
@@ -211,8 +211,8 @@ class LLMNeuroAdaptiveMusicPlayer:
         feature_time = (time.time() - start_time) * 1000
         
         if verbose:
-            logger.info(f"[2/5] ✓ Feature extraction complete ({feature_time:.2f}ms)")
-            logger.info(f"      → {features.shape[0]} features extracted")
+            logger.info(f"[2/5] [OK] Feature extraction complete ({feature_time:.2f}ms)")
+            logger.info(f"      -> {features.shape[0]} features extracted")
         
         # =====================================================================
         # STEP 3: EMOTION RECOGNITION
@@ -231,14 +231,14 @@ class LLMNeuroAdaptiveMusicPlayer:
             confidence = np.random.uniform(0.7, 0.95)
             prediction_probs = np.random.dirichlet(np.ones(len(self.emotion_labels)))
             if verbose:
-                logger.warning("      ⚠ Using MOCK emotion prediction")
+                logger.warning("      [WARNING] Using MOCK emotion prediction")
         
         emotion = self.emotion_labels.get(emotion_idx, EmotionCategory.NEUTRAL)
         predict_time = (time.time() - start_time) * 1000
         
         if verbose:
-            logger.info(f"[3/5] ✓ Emotion recognition complete ({predict_time:.2f}ms)")
-            logger.info(f"      → Detected: {emotion.value.upper()} (confidence: {confidence:.1%})")
+            logger.info(f"[3/5] [OK] Emotion recognition complete ({predict_time:.2f}ms)")
+            logger.info(f"      -> Detected: {emotion.value.upper()} (confidence: {confidence:.1%})")
         
         # =====================================================================
         # STEP 4: MOOD TAG GENERATION (for LLM)
@@ -248,8 +248,8 @@ class LLMNeuroAdaptiveMusicPlayer:
         mood_time = (time.time() - start_time) * 1000
         
         if verbose:
-            logger.info(f"[4/5] ✓ Mood tag generated ({mood_time:.2f}ms)")
-            logger.info(f"      → Mood: \"{mood_tag}\"")
+            logger.info(f"[4/5] [OK] Mood tag generated ({mood_time:.2f}ms)")
+            logger.info(f"      -> Mood: \"{mood_tag}\"")
         
         # =====================================================================
         # STEP 5: LLM DYNAMIC RECOMMENDATION (KEY STEP!)
@@ -273,19 +273,19 @@ class LLMNeuroAdaptiveMusicPlayer:
         llm_time = (time.time() - start_time) * 1000
         
         if verbose:
-            logger.info(f"[5/5] ✓ LLM recommendations complete ({llm_time:.2f}ms)")
-            logger.info(f"\n{'─'*70}")
-            logger.info("🎵 RECOMMENDED TRACKS:")
-            logger.info(f"{'─'*70}")
+            logger.info(f"[5/5] [OK] LLM recommendations complete ({llm_time:.2f}ms)")
+            logger.info(f"\n{'-'*70}")
+            logger.info("[MUSIC] RECOMMENDED TRACKS:")
+            logger.info(f"{'-'*70}")
             for i, track in enumerate(recommended_tracks, 1):
                 logger.info(f"  {i}. {track.artist} - {track.title}")
                 if track.reasoning:
-                    logger.info(f"     → {track.reasoning}")
-            logger.info(f"{'─'*70}")
+                    logger.info(f"     -> {track.reasoning}")
+            logger.info(f"{'-'*70}")
         
         total_time = preprocess_time + feature_time + predict_time + mood_time + llm_time
         if verbose:
-            logger.info(f"\n⏱ Total Pipeline Time: {total_time:.2f}ms")
+            logger.info(f"\n[TIME] Total Pipeline Time: {total_time:.2f}ms")
             logger.info(f"{'='*70}\n")
         
         return emotion, confidence, recommended_tracks
@@ -360,7 +360,7 @@ class LLMNeuroAdaptiveMusicPlayer:
         logger.info(f"\nAverage Confidence: {avg_confidence:.1%}")
         
         logger.info(f"\n{'='*70}")
-        logger.info("✓ All recommendations generated by GPT-4 in real-time!")
+        logger.info("[OK] All recommendations generated by GPT-4 in real-time!")
         logger.info(f"{'='*70}\n")
 
 
@@ -437,19 +437,19 @@ def main():
     import os
     api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        logger.error("❌ OpenAI API key not found!")
-        logger.info("💡 Set your API key in one of these ways:")
+        logger.error("[ERROR] OpenAI API key not found!")
+        logger.info("[TIP] Set your API key in one of these ways:")
         logger.info("   1. Create .env file: cp .env.example .env")
         logger.info("   2. Set environment variable: export OPENAI_API_KEY='sk-...'")
         logger.info("   3. Pass via CLI: --api-key sk-...")
-        logger.info("\n📖 See ENV_SETUP.md for detailed setup instructions")
-        logger.info("📖 See SECURITY.md for API key security best practices")
+        logger.info("\n[DOC] See ENV_SETUP.md for detailed setup instructions")
+        logger.info("[DOC] See SECURITY.md for API key security best practices")
         return 1
     
     # Validate API key format
     if not api_key.startswith('sk-'):
-        logger.error(f"⚠️  API key format appears invalid (should start with 'sk-')")
-        logger.info("💡 Verify your key at: https://platform.openai.com/api-keys")
+        logger.error(f"[WARNING]  API key format appears invalid (should start with 'sk-')")
+        logger.info("[TIP] Verify your key at: https://platform.openai.com/api-keys")
         return 1
     
     # Initialize configuration
@@ -465,14 +465,14 @@ def main():
             duration=10.0,
             emotion='happy'
         )
-        logger.info(f"✓ Generated {len(dataset)} simulated EEG trials")
+        logger.info(f"[OK] Generated {len(dataset)} simulated EEG trials")
     
     elif args.mode == 'deap':
         dataset = load_deap(
             subject=args.subject,
             data_dir=config.DATA_DIR / "DEAP"
         )
-        logger.info(f"✓ Loaded DEAP subject {args.subject}: {len(dataset)} trials")
+        logger.info(f"[OK] Loaded DEAP subject {args.subject}: {len(dataset)} trials")
     
     else:
         logger.error(f"Mode '{args.mode}' not fully implemented yet")
@@ -488,11 +488,11 @@ def main():
             enable_spotify=False
         )
     except ValueError as e:
-        logger.error(f"❌ Failed to initialize player: {e}")
-        logger.info("💡 Check your OpenAI API key and try again")
+        logger.error(f"[ERROR] Failed to initialize player: {e}")
+        logger.info("[TIP] Check your OpenAI API key and try again")
         return 1
     except Exception as e:
-        logger.error(f"❌ Unexpected error during initialization: {e}")
+        logger.error(f"[ERROR] Unexpected error during initialization: {e}")
         return 1
     
     # Run demonstration with error handling
@@ -503,10 +503,10 @@ def main():
             n_tracks_per_trial=args.tracks_per_trial
         )
     except KeyboardInterrupt:
-        logger.info("\n⚠️  Demo interrupted by user")
+        logger.info("\n[WARNING]  Demo interrupted by user")
         return 0
     except Exception as e:
-        logger.error(f"❌ Error during demo: {e}")
+        logger.error(f"[ERROR] Error during demo: {e}")
         logger.exception("Full traceback:")
         return 1
     
@@ -515,10 +515,10 @@ def main():
     print("                    DEMO COMPLETE!")
     print("="*70)
     print("\nTips:")
-    print("  • Set OPENAI_API_KEY environment variable for automatic auth")
-    print("  • Use --model gpt-4 for more creative recommendations")
-    print("  • Use --mode deap to test with real EEG data")
-    print("  • All track suggestions are generated dynamically by AI!")
+    print("  - Set OPENAI_API_KEY environment variable for automatic auth")
+    print("  - Use --model gpt-4 for more creative recommendations")
+    print("  - Use --mode deap to test with real EEG data")
+    print("  - All track suggestions are generated dynamically by AI!")
     print("\nNext steps:")
     print("  1. Integrate with Spotify API for actual playback")
     print("  2. Add user feedback loop to improve recommendations")
