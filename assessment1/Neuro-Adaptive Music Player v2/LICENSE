@@ -1,0 +1,108 @@
+PROPRIETARY LICENSE AGREEMENT
+
+Copyright (c) 2025 Alexander V.
+
+This software and associated documentation files (the "Software") are proprietary
+and confidential. All rights reserved.
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+1. DEFINITIONS
+   "Software" refers to the Neuro-Adaptive Music Player v2 system, including all
+   source code, documentation, models, and associated materials.
+   
+   "You" (or "Your") refers to an individual or legal entity exercising permissions
+   granted by this License.
+
+2. EDUCATIONAL USE
+   Permission is hereby granted, free of charge, to individuals affiliated with
+   academic institutions to use, copy, and modify the Software for educational
+   and research purposes only, subject to the following conditions:
+   
+   a) The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+   
+   b) Any academic publications, presentations, or projects using this Software
+      must provide clear attribution to the original author.
+   
+   c) Modified versions must be clearly marked as such and must not be
+      misrepresented as the original Software.
+
+3. COMMERCIAL USE
+   Commercial use of the Software, including but not limited to:
+   - Sale of the Software or derivative works
+   - Integration into commercial products or services
+   - Use in revenue-generating applications
+   - Deployment in clinical or medical settings
+   - Use by for-profit organizations
+   
+   requires explicit written permission from the copyright holder.
+   
+   To obtain commercial licensing, contact: [Your contact information]
+
+4. NEURAL/EEG APPLICATION RESTRICTIONS
+   Use of this Software in neural signal processing, brain-computer interfaces,
+   medical devices, or EEG-based commercial applications requires separate
+   licensing agreements due to potential ethical, privacy, and regulatory
+   implications.
+
+5. RESTRICTIONS
+   You may not:
+   a) Sublicense, sell, or distribute the Software for commercial purposes
+      without explicit permission
+   b) Remove or alter any copyright notices or license information
+   c) Use the Software in ways that violate privacy rights or ethical guidelines
+   d) Claim ownership or authorship of the original Software
+   e) Use the Software in medical or clinical settings without proper regulatory
+      approval and explicit permission
+
+6. ATTRIBUTION REQUIREMENTS
+   If you use this Software in research or publications, you must cite:
+   
+   Alexander V. (2025). Neuro-Adaptive Music Player v2: Production EEG Emotion
+   Recognition System. GitHub repository: https://github.com/[your-username]/neuro-adaptive-music-player-v2
+
+7. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+8. LIMITATION OF LIABILITY
+   In no event shall the copyright holder be liable for any direct, indirect,
+   incidental, special, exemplary, or consequential damages (including, but not
+   limited to, procurement of substitute goods or services; loss of use, data,
+   or profits; or business interruption) however caused and on any theory of
+   liability, whether in contract, strict liability, or tort (including
+   negligence or otherwise) arising in any way out of the use of this Software,
+   even if advised of the possibility of such damage.
+
+9. DATA PRIVACY
+   Users of this Software must comply with all applicable data privacy laws and
+   regulations, including but not limited to GDPR, HIPAA, and other relevant
+   legislation when processing EEG or other biometric data.
+
+10. ETHICAL USE
+    This Software must not be used for:
+    - Unauthorized surveillance or monitoring
+    - Manipulation or coercion
+    - Discrimination or bias-based decision making
+    - Any purpose that violates human rights or dignity
+
+11. TERMINATION
+    This license automatically terminates if You fail to comply with its terms
+    and conditions. Upon termination, You must cease all use of the Software
+    and destroy all copies.
+
+12. GOVERNING LAW
+    This License shall be governed by and construed in accordance with the laws
+    of [Your jurisdiction], excluding its conflict of law provisions.
+
+For questions, commercial licensing inquiries, or permissions:
+Contact: [Your email]
+GitHub: https://github.com/[your-username]
+
+Last Updated: January 23, 2025
