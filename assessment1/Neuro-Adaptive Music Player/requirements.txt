@@ -3,3 +3,8 @@ scipy
 pygame
 openai
 requests
+
+# Optional: Deep Learning dependencies (for CNN+BiLSTM emotion recognition)
+# Uncomment if you want to use the deep learning features
+# tensorflow>=2.10.0
+# scikit-learn>=1.0.0

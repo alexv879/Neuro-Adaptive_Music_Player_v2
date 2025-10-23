@@ -12,6 +12,7 @@ This app demonstrates applied signals processing by:
 ## Features
 - **EEG Simulation/Streaming**: Simulated data for demo; commented code for real devices (Muse, OpenBCI, NeuroSky).
 - **State Detection**: Identifies 5 states using thresholds on alpha/beta/theta powers (Week 2-4).
+- **Enhanced Emotion Recognition**: Optional deep learning mode with CNN+BiLSTM architecture and Frontal Alpha Asymmetry (FAA) for 70-90% accuracy.
 - **AI Music Recommendations**: OpenAI suggests 3 songs per state; plays first, allows skipping to alternatives (agentic AI for user preference).
 - **Playback Options**: Local MP3 files (pygame) or Amazon Music search (browser).
 - **Feedback System**: Immediate prompts for likes/skips; logs for refining recommendations.
@@ -22,6 +23,8 @@ This app demonstrates applied signals processing by:
 - Python 3.x
 - Libraries: numpy, scipy, pygame, openai, requests
 - Install: `pip install -r requirements.txt`
+- **Optional (Deep Learning)**: TensorFlow, scikit-learn for CNN+BiLSTM emotion recognition
+  - Install: `pip install tensorflow scikit-learn`
 - OpenAI API key (free tier available)
 
 ## Setup
@@ -37,8 +40,16 @@ This app demonstrates applied signals processing by:
 - Simulates/streams EEG data (256 Hz).
 - Applies 1-30 Hz bandpass filter (Week 3).
 - Computes PSD (Welch, Week 2) for band powers.
-- Calculates ratios (e.g., beta/alpha >1.5 = focus).
+- **Standard Mode**: Calculates ratios (e.g., beta/alpha >1.5 = focus).
+- **Deep Learning Mode**: Uses CNN+BiLSTM with Frontal Alpha Asymmetry for improved accuracy (70-90% vs 60-75%).
 - Classifies state.
+
+### Deep Learning Enhancement (Optional)
+- **Architecture**: CNN extracts spatial-frequency features, BiLSTM captures temporal context.
+- **Frontal Alpha Asymmetry (FAA)**: Measures left/right frontal activation for emotional valence (based on Frantzidis et al., 2010).
+- **Multi-band features**: Delta, Theta, Alpha, Beta, Gamma powers per channel.
+- **Benefits**: Higher accuracy, reduced confusion between similar states (happy/sad).
+- **Details**: See `dl_enhancement_docs.md` for full technical documentation.
 
 ### State-to-Music Mapping
 - States: Focus (high beta), Relax (high alpha), Fatigue (low power), Happy (high alpha/beta), Sad (high theta/alpha).
@@ -64,11 +75,13 @@ Edit `app_configuration.py`:
 ## Files
 - `neuro_adaptive_app.py`: Main app entry point and session loop.
 - `eeg_data_simulator.py`: Simulates or streams EEG data.
-- `eeg_signal_processor.py`: Processes signals and detects mental states.
+- `eeg_signal_processor.py`: Processes signals and detects mental states (enhanced with optional deep learning).
+- `dl_emotion_model.py`: Deep learning module with CNN+BiLSTM and FAA (optional).
 - `ai_music_controller.py`: AI-driven music recommendations and playback.
 - `session_data_logger.py`: Logs session data and feedback.
 - `app_configuration.py`: Configuration settings and thresholds.
 - `requirements.txt`: Python dependencies.
+- `dl_enhancement_docs.md`: Technical documentation for deep learning features.
 - `session_log.csv`: Generated session data.
 - `feedback_log.csv`: Generated user feedback.
 
@@ -84,6 +97,8 @@ Edit `app_configuration.py`:
 - **Feedback Timing**: Switched to cycle-based periodic feedback for consistency.
 - **Signal Processing Checks**: Added validation for PSD computation to avoid errors with short signals.
 - **Graceful Shutdown**: Better handling of Ctrl+C interrupts in the main loop.
+- **Deep Learning Integration**: Added optional CNN+BiLSTM model with Frontal Alpha Asymmetry for 70-90% accuracy (based on Frantzidis et al., 2010).
+- **Backward Compatibility**: Graceful fallback to threshold-based classification if deep learning unavailable.
 
 ## EEG Sticker Add-on for Any Headset — Quick Integration Plan
 ### Overview

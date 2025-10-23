@@ -30,3 +30,8 @@ MODEL = "gpt-3.5-turbo"  # Or gpt-4 (language model for song suggestions, agenti
 
 # Logging
 LOG_FILE = "session_log.csv"  # CSV for session data (Week 2: Scientific coding - reproducible logging for analysis)
+
+# Deep Learning settings (optional - requires TensorFlow/Keras)
+USE_DEEP_LEARNING = False  # If True, uses CNN+BiLSTM model for emotion recognition
+DL_MODEL_PATH = "models/emotion_model"  # Path to pre-trained model (without extension)
+DL_TRAIN_MODE = False  # If True, enables model training mode (requires dataset)

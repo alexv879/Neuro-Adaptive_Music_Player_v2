@@ -1,19 +1,67 @@
 # Signal processor module for EEG analysis and brain state classification
 # Applies real-time filtering and feature extraction from the assessment (Weeks 2-4)
+# Enhanced with optional deep learning support (CNN+BiLSTM) based on Frantzidis et al. (2010)
 
 import numpy as np  # For arrays and math
 from scipy.signal import butter, filtfilt, welch  # For filtering and PSD
 from app_configuration import BANDPASS_LOW, BANDPASS_HIGH, BUTTER_ORDER, FS, FOCUS_THRESHOLD, RELAX_THRESHOLD, FATIGUE_THRESHOLD, HAPPY_THRESHOLD, SAD_THRESHOLD  # Import settings
 
+# Try importing deep learning module
+try:
+    from dl_emotion_model import DeepLearningEmotionRecognizer
+    DL_AVAILABLE = True
+except ImportError:
+    DL_AVAILABLE = False
+    print("Deep learning module not available. Using threshold-based classification.")
+
 class SignalProcessor:
-    # Initializes the processor with filter design
-    def __init__(self):
+    # Initializes the processor with filter design and optional deep learning
+    def __init__(self, use_deep_learning=False, model_path=None):
+        """
+        Args:
+            use_deep_learning: If True and available, uses CNN+BiLSTM model
+            model_path: Path to pre-trained deep learning model
+        """
         self.fs = FS  # Sampling rate
         # Design Butterworth bandpass filter (Week 3: Convolution for EEG isolation)
         self.b, self.a = butter(BUTTER_ORDER, [BANDPASS_LOW, BANDPASS_HIGH], btype='band', fs=self.fs)
+        
+        # Initialize deep learning recognizer if available
+        self.use_dl = use_deep_learning and DL_AVAILABLE
+        if self.use_dl:
+            self.dl_recognizer = DeepLearningEmotionRecognizer(use_deep_learning=True, model_path=model_path)
+            print("Deep learning emotion recognition enabled (CNN+BiLSTM with Frontal Alpha Asymmetry)")
+        else:
+            self.dl_recognizer = None
+            print("Using threshold-based emotion classification")
 
     # Processes a window of EEG data and classifies brain state
     def process_window(self, signal):
+        """
+        Process EEG window using either deep learning or threshold-based classification.
+        
+        Args:
+            signal: 1D or 2D EEG data (n_samples) or (n_channels, n_samples)
+        
+        Returns:
+            Tuple (state, features) where features is a dict
+        """
+        # Use deep learning if enabled
+        if self.use_dl and self.dl_recognizer is not None:
+            try:
+                state, confidence, features = self.dl_recognizer.predict_emotion(signal)
+                # Add confidence to features
+                features['confidence'] = confidence
+                features['method'] = 'deep_learning'
+                return state, features
+            except Exception as e:
+                print(f"Deep learning error: {e}. Falling back to threshold-based.")
+        
+        # Fallback to original threshold-based method
+        # Ensure signal is 1D for backward compatibility
+        if signal.ndim > 1:
+            signal = signal[0]  # Use first channel
+        
         # Step 1: Apply bandpass filter to isolate 1-30 Hz EEG bands (Week 3: Noise attenuation)
         filtered = filtfilt(self.b, self.a, signal)  # Zero-phase filtering to avoid distortion
         
@@ -59,7 +107,8 @@ class SignalProcessor:
             "beta_alpha": beta_alpha,
             "alpha_theta": alpha_theta,
             "alpha_beta": alpha_beta,
-            "theta_alpha": theta_alpha
+            "theta_alpha": theta_alpha,
+            "method": "threshold_based"
         }
         
         return state, features  # Return classified state and features
