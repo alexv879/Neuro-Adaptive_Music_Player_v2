@@ -436,7 +436,19 @@ Use evidence-based music therapy approaches."""
             return tracks
             
         except Exception as e:
-            logger.error(f"OpenAI API error: {e}")
+            # Log specific error types for better debugging
+            error_msg = str(e).lower()
+            if "rate limit" in error_msg or "quota" in error_msg:
+                logger.error(f"⚠️  OpenAI API rate limit exceeded: {e}")
+                logger.info("💡 Tip: Check your OpenAI usage at https://platform.openai.com/usage")
+            elif "api key" in error_msg or "authentication" in error_msg or "unauthorized" in error_msg:
+                logger.error(f"⚠️  OpenAI API authentication failed: {e}")
+                logger.info("💡 Tip: Verify your API key is correct in .env file")
+            elif "timeout" in error_msg or "connection" in error_msg:
+                logger.error(f"⚠️  OpenAI API connection timeout: {e}")
+                logger.info("💡 Tip: Check your internet connection")
+            else:
+                logger.error(f"⚠️  OpenAI API error: {e}")
             raise
     
     def _parse_llm_response(self, content: str, expected_count: int) -> List[LLMTrackRecommendation]:
@@ -507,6 +519,14 @@ Use evidence-based music therapy approaches."""
                 
                 if len(tracks) >= expected_count:
                     break
+        
+        # Log parsing results
+        if len(tracks) == 0:
+            logger.warning(f"⚠️  Failed to parse any tracks from LLM response. Raw content:\n{content[:200]}...")
+        elif len(tracks) < expected_count:
+            logger.warning(f"⚠️  Only parsed {len(tracks)}/{expected_count} tracks from LLM response")
+        else:
+            logger.info(f"✓ Successfully parsed {len(tracks)} tracks from LLM response")
         
         return tracks
     

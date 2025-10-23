@@ -59,6 +59,20 @@ You should see:
 ✓ OpenAI API connection successful
 ```
 
+### 5. Security Check ⚠️
+
+**CRITICAL**: Verify `.env` is NOT tracked by git:
+
+```bash
+# Should only show .env.example (not .env)
+git ls-files | Select-String "\.env"
+
+# Should output: .env
+git check-ignore .env
+```
+
+**📖 See [SECURITY.md](SECURITY.md) for complete security guidelines**
+
 ## Security Best Practices
 
 ### ✅ DO:

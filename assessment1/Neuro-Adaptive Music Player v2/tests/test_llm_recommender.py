@@ -21,7 +21,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 from src.llm_music_recommender import (
     LLMMusicRecommender,
     LLMTrackRecommendation,
@@ -235,6 +235,135 @@ class TestUtilityFunctions(unittest.TestCase):
         
         self.assertIsInstance(recommender, LLMMusicRecommender)
         self.assertEqual(recommender.model, "gpt-3.5-turbo")
+
+
+class TestAPIErrorHandling(unittest.TestCase):
+    """Test error handling for various API failure scenarios."""
+    
+    @patch('src.llm_music_recommender.OpenAI')
+    def test_missing_api_key_with_fallback(self, mock_openai):
+        """Test graceful fallback when API key is missing."""
+        recommender = LLMMusicRecommender(
+            api_key=None,
+            enable_fallback=True
+        )
+        
+        # Should work with fallback
+        tracks = recommender.recommend("happy", n_tracks=3)
+        self.assertEqual(len(tracks), 3)
+        
+        # OpenAI client should not be initialized
+        self.assertIsNone(recommender.client)
+    
+    def test_missing_api_key_without_fallback(self):
+        """Test that missing API key raises error when fallback disabled."""
+        with self.assertRaises(ValueError):
+            LLMMusicRecommender(
+                api_key=None,
+                enable_fallback=False
+            )
+    
+    @patch('src.llm_music_recommender.OpenAI')
+    def test_api_call_with_mock(self, mock_openai_class):
+        """Test OpenAI API call with complete mock."""
+        # Create mock response
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = """
+1. Pharrell Williams - Happy
+2. Katrina and The Waves - Walking on Sunshine
+3. Bobby McFerrin - Don't Worry Be Happy
+"""
+        
+        # Configure mock client
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = mock_response
+        mock_openai_class.return_value = mock_client
+        
+        # Test with mock (skip initialization which calls _test_connection)
+        recommender = LLMMusicRecommender(
+            api_key=None,  # Skip initialization
+            enable_fallback=True
+        )
+        # Manually set client for testing
+        recommender.client = mock_client
+        
+        tracks = recommender.recommend("happy", n_tracks=3)
+        
+        # Verify API was called (at least once, may include connection test)
+        self.assertGreater(mock_client.chat.completions.create.call_count, 0)
+        
+        # Verify results
+        self.assertEqual(len(tracks), 3)
+        self.assertEqual(tracks[0].artist, "Pharrell Williams")
+        self.assertEqual(tracks[0].title, "Happy")
+    
+    @patch('src.llm_music_recommender.OpenAI')
+    def test_rate_limit_error(self, mock_openai_class):
+        """Test handling of rate limit errors."""
+        # Configure mock to raise rate limit error
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = Exception("Rate limit exceeded")
+        
+        recommender = LLMMusicRecommender(
+            api_key="sk-test-key",
+            enable_fallback=True
+        )
+        recommender.client = mock_client
+        
+        # Should fallback gracefully
+        tracks = recommender.recommend("happy", n_tracks=3)
+        
+        # Should return fallback recommendations
+        self.assertEqual(len(tracks), 3)
+        self.assertTrue(all(isinstance(t, LLMTrackRecommendation) for t in tracks))
+    
+    @patch('src.llm_music_recommender.OpenAI')
+    def test_invalid_api_key_error(self, mock_openai_class):
+        """Test handling of invalid API key."""
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = Exception("Incorrect API key")
+        
+        recommender = LLMMusicRecommender(
+            api_key="sk-invalid",
+            enable_fallback=True
+        )
+        recommender.client = mock_client
+        
+        # Should fallback gracefully
+        tracks = recommender.recommend("calm", n_tracks=2)
+        self.assertEqual(len(tracks), 2)
+    
+    def test_malformed_response_parsing(self):
+        """Test parsing malformed LLM responses."""
+        recommender = LLMMusicRecommender(enable_fallback=True)
+        
+        # Test various malformed responses
+        malformed_responses = [
+            "",  # Empty
+            "This is not a valid response",  # No tracks
+            "1. Artist Only",  # Missing delimiter
+            "Just some random text\nNo structure at all",  # Completely wrong
+            "1.\n2.\n3.",  # Empty entries
+        ]
+        
+        for response in malformed_responses:
+            tracks = recommender._parse_llm_response(response, expected_count=3)
+            # Should return empty list or handle gracefully
+            self.assertIsInstance(tracks, list)
+    
+    def test_partial_response_parsing(self):
+        """Test parsing partial/incomplete responses."""
+        recommender = LLMMusicRecommender(enable_fallback=True)
+        
+        # Response with only 2 tracks when 5 expected
+        response = """1. Artist 1 - Track 1
+2. Artist 2 - Track 2"""
+        
+        tracks = recommender._parse_llm_response(response, expected_count=5)
+        
+        # Should return what it can parse
+        self.assertGreaterEqual(len(tracks), 2)
 
 
 class TestLiveAPIIntegration(unittest.TestCase):

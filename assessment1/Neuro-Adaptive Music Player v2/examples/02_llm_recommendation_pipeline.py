@@ -433,6 +433,25 @@ def main():
     print("    Dynamic AI Recommendations via GPT-4 + EEG Emotions")
     print("="*70 + "\n")
     
+    # Validate API key early
+    import os
+    api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        logger.error("❌ OpenAI API key not found!")
+        logger.info("💡 Set your API key in one of these ways:")
+        logger.info("   1. Create .env file: cp .env.example .env")
+        logger.info("   2. Set environment variable: export OPENAI_API_KEY='sk-...'")
+        logger.info("   3. Pass via CLI: --api-key sk-...")
+        logger.info("\n📖 See ENV_SETUP.md for detailed setup instructions")
+        logger.info("📖 See SECURITY.md for API key security best practices")
+        return 1
+    
+    # Validate API key format
+    if not api_key.startswith('sk-'):
+        logger.error(f"⚠️  API key format appears invalid (should start with 'sk-')")
+        logger.info("💡 Verify your key at: https://platform.openai.com/api-keys")
+        return 1
+    
     # Initialize configuration
     config = Config()
     
@@ -459,21 +478,37 @@ def main():
         logger.error(f"Mode '{args.mode}' not fully implemented yet")
         return
     
-    # Initialize LLM-enhanced player
-    player = LLMNeuroAdaptiveMusicPlayer(
-        config=config,
-        openai_api_key=args.api_key,
-        llm_model=args.model,
-        model_path=args.model_path,
-        enable_spotify=False
-    )
+    # Initialize LLM-enhanced player with error handling
+    try:
+        player = LLMNeuroAdaptiveMusicPlayer(
+            config=config,
+            openai_api_key=api_key,
+            llm_model=args.model,
+            model_path=args.model_path,
+            enable_spotify=False
+        )
+    except ValueError as e:
+        logger.error(f"❌ Failed to initialize player: {e}")
+        logger.info("💡 Check your OpenAI API key and try again")
+        return 1
+    except Exception as e:
+        logger.error(f"❌ Unexpected error during initialization: {e}")
+        return 1
     
-    # Run demonstration
-    player.run_demo(
-        dataset=dataset,
-        n_trials=args.n_trials,
-        n_tracks_per_trial=args.tracks_per_trial
-    )
+    # Run demonstration with error handling
+    try:
+        player.run_demo(
+            dataset=dataset,
+            n_trials=args.n_trials,
+            n_tracks_per_trial=args.tracks_per_trial
+        )
+    except KeyboardInterrupt:
+        logger.info("\n⚠️  Demo interrupted by user")
+        return 0
+    except Exception as e:
+        logger.error(f"❌ Error during demo: {e}")
+        logger.exception("Full traceback:")
+        return 1
     
     # Tips
     print("\n" + "="*70)
@@ -490,7 +525,10 @@ def main():
     print("  3. Experiment with different LLM prompt templates")
     print("  4. Train emotion model for better accuracy")
     print("\n")
+    
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

@@ -1,0 +1,102 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security-scan:
+    name: Check for Sensitive Files
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Get full history for better scanning
+    
+    - name: Check for .env files
+      run: |
+        echo "🔍 Scanning for .env files in repository..."
+        
+        # Check if any .env files (except .env.example) exist in tracked files
+        if git ls-files | grep -E "^\.env$|^\.env\..*$" | grep -v "\.env\.example$"; then
+          echo "❌ ERROR: .env file(s) found in repository!"
+          echo "These files contain sensitive information and should NOT be committed."
+          echo ""
+          echo "Files found:"
+          git ls-files | grep -E "^\.env$|^\.env\..*$" | grep -v "\.env\.example$"
+          echo ""
+          echo "To remove these files from git:"
+          echo "  git rm --cached .env"
+          echo "  git commit -m 'Remove .env file from tracking'"
+          exit 1
+        else
+          echo "✅ No .env files found in repository"
+        fi
+    
+    - name: Check for other sensitive files
+      run: |
+        echo "🔍 Scanning for other sensitive files..."
+        
+        # Check for common sensitive file patterns
+        SENSITIVE_FILES=$(git ls-files | grep -E "credentials\.json$|secrets\.yml$|.*_credentials\.py$|.*\.pem$|.*\.key$" || true)
+        
+        if [ -n "$SENSITIVE_FILES" ]; then
+          echo "⚠️  WARNING: Potentially sensitive files found:"
+          echo "$SENSITIVE_FILES"
+          echo ""
+          echo "Please verify these files should be in version control."
+          # Don't fail, just warn
+        else
+          echo "✅ No other sensitive files found"
+        fi
+    
+    - name: Verify .gitignore exists and contains .env
+      run: |
+        echo "🔍 Checking .gitignore configuration..."
+        
+        if [ ! -f .gitignore ]; then
+          echo "❌ ERROR: .gitignore file not found!"
+          exit 1
+        fi
+        
+        if ! grep -q "^\.env$" .gitignore; then
+          echo "⚠️  WARNING: .env not found in .gitignore"
+          echo "Please add .env to .gitignore to prevent accidental commits"
+        else
+          echo "✅ .gitignore properly configured"
+        fi
+    
+    - name: Check for hardcoded secrets in code
+      run: |
+        echo "🔍 Scanning for hardcoded API keys..."
+        
+        # Look for common API key patterns in Python files
+        HARDCODED=$(git grep -E "(sk-[a-zA-Z0-9]{32,}|api[_-]?key\s*=\s*['\"][a-zA-Z0-9]{20,})" -- "*.py" || true)
+        
+        if [ -n "$HARDCODED" ]; then
+          echo "⚠️  WARNING: Potential hardcoded API keys found:"
+          echo "$HARDCODED"
+          echo ""
+          echo "API keys should be loaded from environment variables, not hardcoded."
+        else
+          echo "✅ No hardcoded API keys detected"
+        fi
+    
+    - name: Summary
+      if: always()
+      run: |
+        echo ""
+        echo "========================================"
+        echo "Security Scan Complete"
+        echo "========================================"
+        echo ""
+        echo "Remember:"
+        echo "  • Never commit .env files"
+        echo "  • Always use environment variables for secrets"
+        echo "  • Keep .env.example updated as a template"
+        echo "  • Review .gitignore regularly"
+        echo ""
