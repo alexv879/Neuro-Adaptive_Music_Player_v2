@@ -67,9 +67,9 @@ NOTCH_FREQ: float = 50.0  # Hz - Europe/Asia (use 60.0 for North America)
 NOTCH_Q: float = 30.0  # Quality factor - higher = narrower notch
 
 # Artifact rejection thresholds (based on MNE-Python defaults)
-VOLTAGE_THRESHOLD: float = 100.0  # µV - Flag channels exceeding this
-GRADIENT_THRESHOLD: float = 50.0  # µV/sample - Detect rapid jumps
-FLATLINE_THRESHOLD: float = 1e-6  # µV - Detect dead channels
+VOLTAGE_THRESHOLD: float = 100.0  # microV - Flag channels exceeding this
+GRADIENT_THRESHOLD: float = 50.0  # microV/sample - Detect rapid jumps
+FLATLINE_THRESHOLD: float = 1e-6  # microV - Detect dead channels
 
 # =============================================================================
 # FREQUENCY BAND DEFINITIONS (Standard IEEEG nomenclature)
@@ -119,7 +119,7 @@ MODEL_NAME: str = "CNN_BiLSTM_Hierarchical"
 # Input shape parameters
 N_CHANNELS: int = 2  # Default for minimal setup (Fp1, Fp2)
 N_TIMEPOINTS: int = int(WINDOW_SIZE * SAMPLING_RATE)  # 512 samples
-N_FEATURES: int = 11  # 5 bands × 2 channels + 1 FAA
+N_FEATURES: int = 11  # 5 bands x 2 channels + 1 FAA
 
 # CNN parameters
 CNN_FILTERS: List[int] = [64, 128, 256]  # Progressive feature extraction

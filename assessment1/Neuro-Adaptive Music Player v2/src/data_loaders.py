@@ -769,14 +769,14 @@ if __name__ == "__main__":
     # Test 1: Simulated data generation
     print("\n[Test 1] Generating simulated EEG data...")
     dataset = generate_simulated_data(n_trials=20, emotion="happy")
-    print(f"✓ Generated dataset: {dataset}")
+    print(f"[OK] Generated dataset: {dataset}")
     print(f"  Info: {dataset.get_info()}")
     
     # Test 2: Test different emotions
     print("\n[Test 2] Testing emotion-specific patterns...")
     for emotion in ["happy", "sad", "calm", "angry"]:
         ds = generate_simulated_data(n_trials=5, emotion=emotion)
-        print(f"  {emotion:8} → mean={ds.data.mean():.3f}, std={ds.data.std():.3f}")
+        print(f"  {emotion:8} -> mean={ds.data.mean():.3f}, std={ds.data.std():.3f}")
     
     # Test 3: Test dataset indexing
     print("\n[Test 3] Testing dataset indexing...")
@@ -790,11 +790,11 @@ if __name__ == "__main__":
     if deap_path.exists():
         try:
             deap_ds = load_deap(str(deap_path), subject_ids=1)
-            print(f"  ✓ Loaded DEAP: {deap_ds}")
+            print(f"  [OK] Loaded DEAP: {deap_ds}")
         except Exception as e:
-            print(f"  ✗ DEAP loading failed: {e}")
+            print(f"  [FAIL] DEAP loading failed: {e}")
     else:
-        print(f"  ⊘ Skipped (DEAP data not found at {deap_path})")
+        print(f"  [SKIP] Skipped (DEAP data not found at {deap_path})")
     
     # Test 5: SEED loader (if available)
     print("\n[Test 5] Testing SEED loader...")
@@ -802,14 +802,14 @@ if __name__ == "__main__":
     if seed_path.exists():
         try:
             seed_ds = load_seed(str(seed_path), subject_id=1, session=1)
-            print(f"  ✓ Loaded SEED: {seed_ds}")
+            print(f"  [OK] Loaded SEED: {seed_ds}")
         except Exception as e:
-            print(f"  ✗ SEED loading failed: {e}")
+            print(f"  [FAIL] SEED loading failed: {e}")
     else:
-        print(f"  ⊘ Skipped (SEED data not found at {seed_path})")
+        print(f"  [SKIP] Skipped (SEED data not found at {seed_path})")
     
     print("\n" + "=" * 60)
-    print("Self-test complete! ✓")
+    print("[DONE] Self-test complete!")
     print("=" * 60)
     print("\nTo use real datasets:")
     print("  1. Download DEAP: https://www.eecs.qmul.ac.uk/mmv/datasets/deap/")

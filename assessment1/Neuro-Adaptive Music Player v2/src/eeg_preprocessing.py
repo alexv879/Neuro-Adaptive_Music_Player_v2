@@ -662,11 +662,11 @@ def check_data_quality(
         print(f"Shape: {data.shape}")
         print(f"NaN values: {metrics['has_nan']}")
         print(f"Inf values: {metrics['has_inf']}")
-        print(f"Amplitude range: [{metrics['min_amplitude']:.2f}, {metrics['max_amplitude']:.2f}] µV")
-        print(f"Mean amplitude: {metrics['mean_amplitude']:.2f} µV")
-        print(f"Std amplitude: {metrics['std_amplitude']:.2f} µV")
+        print(f"Amplitude range: [{metrics['min_amplitude']:.2f}, {metrics['max_amplitude']:.2f}] microV")
+        print(f"Mean amplitude: {metrics['mean_amplitude']:.2f} microV")
+        print(f"Std amplitude: {metrics['std_amplitude']:.2f} microV")
         print(f"Flatline channels: {metrics['flatline_channels']}")
-        print(f"Extreme values (>{VOLTAGE_THRESHOLD}µV): {metrics['extreme_values']}")
+        print(f"Extreme values (>{VOLTAGE_THRESHOLD} microV): {metrics['extreme_values']}")
         print(f"Estimated SNR: {metrics['snr_db']:.2f} dB")
         print("=" * 60)
     
@@ -680,7 +680,7 @@ if __name__ == "__main__":
     
     # Create test data: 32 channels, 5 seconds at 256 Hz
     np.random.seed(42)
-    test_data = np.random.randn(32, 1280) * 10  # 10 µV noise
+    test_data = np.random.randn(32, 1280) * 10  # 10 microV noise
     
     # Add some EEG-like signals
     t = np.arange(1280) / 256

@@ -807,7 +807,7 @@ if __name__ == "__main__":
         # Create dummy data
         np.random.seed(42)
         n_samples = 1000
-        n_features = 167  # Example: 32 channels × 5 bands + 3 FAA
+        n_features = 167  # Example: 32 channels x 5 bands + 3 FAA
         n_classes = 5
         
         X_train = np.random.randn(n_samples, n_features).astype(np.float32)

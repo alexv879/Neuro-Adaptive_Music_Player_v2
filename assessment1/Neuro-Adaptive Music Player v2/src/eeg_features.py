@@ -742,7 +742,7 @@ if __name__ == "__main__":
     fs = 256
     n_samples = duration * fs
     
-    test_data = np.random.randn(n_channels, n_samples) * 10  # 10 µV noise
+    test_data = np.random.randn(n_channels, n_samples) * 10  # 10 microV noise
     
     # Add realistic EEG signals
     t = np.arange(n_samples) / fs
