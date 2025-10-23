@@ -404,8 +404,6 @@ See [LICENSE](../LICENSE) for full details.
 ## Contact
 
 - **Author**: Alexander V.
-- **Course**: CMP9780M Applied Signals and Images Processing
-- **Institution**: AIUniversity
 - **GitHub**: [@alexv879](https://github.com/alexv879)
 
 ---
