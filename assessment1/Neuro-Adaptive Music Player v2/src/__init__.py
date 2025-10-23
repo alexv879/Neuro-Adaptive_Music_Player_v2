@@ -63,6 +63,13 @@ try:
         Track,
         create_recommendation_engine
     )
+    from .llm_music_recommender import (
+        LLMMusicRecommender,
+        LLMTrackRecommendation,
+        PromptTemplate,
+        create_llm_recommender,
+        emotion_to_mood_tag
+    )
     
     __all__ = [
         # Core processing
@@ -84,6 +91,12 @@ try:
         'MusicPlatform',
         'Track',
         'create_recommendation_engine',
+        # LLM-powered recommendations
+        'LLMMusicRecommender',
+        'LLMTrackRecommendation',
+        'PromptTemplate',
+        'create_llm_recommender',
+        'emotion_to_mood_tag',
     ]
 except ImportError as e:
     # Modules not yet available
