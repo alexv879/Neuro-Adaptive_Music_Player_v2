@@ -89,7 +89,7 @@ class LLMNeuroAdaptiveMusicPlayer:
         4. Emotion Recognition (CNN+BiLSTM or mock)
         5. **LLM Mood Analysis** (convert emotion → descriptive mood tag)
         6. **Dynamic Recommendation** (GPT-4 generates track suggestions)
-        7. Spotify/YouTube Playback (via existing music engine)
+        7. Spotify Playback (via existing music engine)
     """
     
     def __init__(

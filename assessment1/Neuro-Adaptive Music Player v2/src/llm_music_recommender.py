@@ -28,6 +28,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # Load .env file if it exists
+except ImportError:
+    pass  # dotenv not available, will use system env vars
+
 # OpenAI integration with graceful fallback
 try:
     import openai
@@ -156,7 +163,7 @@ class LLMMusicRecommender:
         
         # Initialize OpenAI client
         if OPENAI_AVAILABLE:
-            # Get API key from parameter, env var, or config
+            # Get API key from parameter or .env file (loaded via dotenv)
             self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
             
             if self.api_key:

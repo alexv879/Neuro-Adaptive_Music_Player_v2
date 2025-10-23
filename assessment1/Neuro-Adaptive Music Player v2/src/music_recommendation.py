@@ -2,15 +2,15 @@
 Music Recommendation Engine for Neuro-Adaptive Music Player v2
 
 This module provides intelligent music recommendation based on detected emotions
-with support for multiple music streaming platforms (Spotify, YouTube, Deezer).
+with Spotify integration.
 
 Features:
     - Emotion-to-music mapping with configurable mood profiles
-    - Multi-platform support (Spotify, YouTube Music, Deezer, local files)
+    - Spotify API integration for music playback
     - Intelligent playlist generation and shuffling
     - Playback control and state management
     - Song history and recommendation logging
-    - Fallback strategies for API limitations
+    - Mock recommendations for testing without Spotify
 
 Author: Alexander V.
 License: Proprietary
@@ -40,19 +40,7 @@ except ImportError:
     SPOTIFY_AVAILABLE = False
     logging.warning("Spotify (spotipy) not installed. Spotify features disabled.")
 
-try:
-    import pygame
-    PYGAME_AVAILABLE = True
-except ImportError:
-    PYGAME_AVAILABLE = False
-    logging.warning("Pygame not installed. Local music playback disabled.")
-
-try:
-    from pytube import YouTube
-    YOUTUBE_AVAILABLE = True
-except ImportError:
-    YOUTUBE_AVAILABLE = False
-    logging.warning("PyTube not installed. YouTube features disabled.")
+# Removed: pygame (local playback) and pytube (YouTube) - keeping Spotify only
 
 
 # Configure logging
@@ -74,10 +62,7 @@ class EmotionCategory(Enum):
 class MusicPlatform(Enum):
     """Supported music streaming platforms."""
     SPOTIFY = "spotify"
-    YOUTUBE = "youtube"
-    DEEZER = "deezer"
-    LOCAL = "local"
-    NONE = "none"
+    NONE = "none"  # Mock platform for testing
 
 
 @dataclass
@@ -178,7 +163,6 @@ class MusicRecommendationEngine:
         
         # Platform clients (initialized on demand)
         self.spotify_client: Optional[Any] = None
-        self.pygame_mixer: Optional[Any] = None
         
         # Emotion-to-music mapping (valence-arousal model)
         self.emotion_profiles = self._initialize_emotion_profiles()
@@ -423,10 +407,6 @@ class MusicRecommendationEngine:
         # Select recommendation strategy based on platform
         if self.platform == MusicPlatform.SPOTIFY and self.spotify_client:
             tracks = self._recommend_spotify(emotion, n_tracks, diversity)
-        elif self.platform == MusicPlatform.YOUTUBE:
-            tracks = self._recommend_youtube(emotion, n_tracks)
-        elif self.platform == MusicPlatform.LOCAL:
-            tracks = self._recommend_local(emotion, n_tracks)
         else:
             # Fallback to mock recommendations
             logger.warning(f"Platform {self.platform.value} not available, using mock recommendations")
@@ -540,55 +520,7 @@ class MusicRecommendationEngine:
             logger.error(f"Spotify recommendation failed: {e}")
             return []
     
-    def _recommend_youtube(self, emotion: EmotionCategory, n_tracks: int) -> List[Track]:
-        """Recommend tracks from YouTube (placeholder for future implementation)."""
-        logger.warning("YouTube recommendations not yet implemented")
-        return self._recommend_mock(emotion, n_tracks)
-    
-    def _recommend_local(self, emotion: EmotionCategory, n_tracks: int) -> List[Track]:
-        """Recommend tracks from local music library."""
-        music_dir = Path("music") / emotion.value
-        
-        if not music_dir.exists():
-            logger.warning(f"Local music directory not found: {music_dir}")
-            return []
-        
-        # Find all audio files
-        audio_extensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a']
-        audio_files = []
-        
-        for ext in audio_extensions:
-            audio_files.extend(music_dir.glob(f"*{ext}"))
-        
-        if not audio_files:
-            logger.warning(f"No audio files found in {music_dir}")
-            return []
-        
-        # Sample random tracks
-        selected_files = random.sample(audio_files, min(n_tracks, len(audio_files)))
-        
-        tracks = []
-        for file_path in selected_files:
-            # Parse filename for artist-title (format: "Artist - Title.mp3")
-            filename = file_path.stem
-            if ' - ' in filename:
-                artist, title = filename.split(' - ', 1)
-            else:
-                artist = "Unknown"
-                title = filename
-            
-            track = Track(
-                title=title,
-                artist=artist,
-                uri=str(file_path.absolute()),
-                platform=MusicPlatform.LOCAL,
-                emotion=emotion
-            )
-            tracks.append(track)
-        
-        logger.info(f"Found {len(tracks)} local tracks for {emotion.value}")
-        return tracks
-    
+
     def _recommend_mock(self, emotion: EmotionCategory, n_tracks: int) -> List[Track]:
         """Generate mock recommendations for testing."""
         profile = self.emotion_profiles[emotion]
@@ -661,10 +593,6 @@ class MusicRecommendationEngine:
         
         if track.platform == MusicPlatform.SPOTIFY:
             success = self._play_spotify(track)
-        elif track.platform == MusicPlatform.LOCAL:
-            success = self._play_local(track)
-        elif track.platform == MusicPlatform.YOUTUBE:
-            success = self._play_youtube(track)
         else:
             logger.warning(f"Cannot play track from platform: {track.platform.value}")
             success = False
@@ -708,33 +636,7 @@ class MusicRecommendationEngine:
             logger.error(f"Spotify playback failed: {e}")
             return False
     
-    def _play_local(self, track: Track) -> bool:
-        """Play local audio file using pygame."""
-        if not PYGAME_AVAILABLE:
-            logger.error("Pygame not installed. Cannot play local files.")
-            return False
-        
-        try:
-            # Initialize pygame mixer if not already initialized
-            if not self.pygame_mixer:
-                pygame.mixer.init()
-                self.pygame_mixer = pygame.mixer.music
-            
-            # Load and play
-            self.pygame_mixer.load(track.uri)
-            self.pygame_mixer.play()
-            
-            logger.info(f"Started local playback: {track}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Local playback failed: {e}")
-            return False
-    
-    def _play_youtube(self, track: Track) -> bool:
-        """Play YouTube video (placeholder)."""
-        logger.warning("YouTube playback not yet implemented")
-        return False
+
     
     def pause(self) -> bool:
         """Pause current playback."""
@@ -745,9 +647,6 @@ class MusicRecommendationEngine:
         try:
             if self.current_track.platform == MusicPlatform.SPOTIFY and self.spotify_client:
                 self.spotify_client.pause_playback()
-                return True
-            elif self.current_track.platform == MusicPlatform.LOCAL and self.pygame_mixer:
-                self.pygame_mixer.pause()
                 return True
         except Exception as e:
             logger.error(f"Pause failed: {e}")
@@ -763,9 +662,6 @@ class MusicRecommendationEngine:
         try:
             if self.current_track.platform == MusicPlatform.SPOTIFY and self.spotify_client:
                 self.spotify_client.start_playback()
-                return True
-            elif self.current_track.platform == MusicPlatform.LOCAL and self.pygame_mixer:
-                self.pygame_mixer.unpause()
                 return True
         except Exception as e:
             logger.error(f"Resume failed: {e}")
@@ -784,9 +680,6 @@ class MusicRecommendationEngine:
         try:
             if self.current_track.platform == MusicPlatform.SPOTIFY and self.spotify_client:
                 self.spotify_client.next_track()
-                return True
-            elif self.current_track.platform == MusicPlatform.LOCAL and self.pygame_mixer:
-                self.pygame_mixer.stop()
                 return True
         except Exception as e:
             logger.error(f"Skip failed: {e}")
