@@ -309,3 +309,52 @@ def validate_config() -> bool:
 
 # Run validation on import
 validate_config()
+
+
+# =============================================================================
+# CONFIG CLASS WRAPPER (for compatibility with new modules)
+# =============================================================================
+
+class Config:
+    """
+    Configuration class wrapper for compatibility with new modules.
+    
+    Provides access to all configuration constants as class attributes.
+    """
+    
+    # Paths
+    BASE_DIR = BASE_DIR
+    DATA_DIR = DATA_DIR
+    MODEL_DIR = MODEL_DIR
+    LOG_DIR = LOG_DIR
+    MUSIC_DIR = MUSIC_DIR
+    
+    # EEG Parameters
+    SAMPLING_RATE = SAMPLING_RATE
+    WINDOW_SIZE = WINDOW_SIZE
+    OVERLAP = OVERLAP
+    N_CHANNELS = 32
+    CHANNEL_NAMES = STANDARD_CHANNEL_NAMES[:32]  # First 32 channels
+    
+    # Preprocessing
+    BANDPASS_LOWCUT = BANDPASS_LOW
+    BANDPASS_HIGHCUT = BANDPASS_HIGH
+    BANDPASS_ORDER = FILTER_ORDER  # Fixed: was BUTTER_ORDER
+    NOTCH_FREQ = 50.0
+    
+    # Features
+    FREQ_BANDS = FREQUENCY_BANDS  # Fixed: was FREQ_BANDS
+    FAA_CHANNEL_PAIRS = [('F3', 'F4'), ('F7', 'F8'), ('Fp1', 'Fp2')]
+    
+    # Model
+    N_EMOTION_CLASSES = EMOTION_CLASSES
+    BATCH_SIZE = 32
+    EPOCHS = 100
+    LEARNING_RATE = 0.001
+    
+    def validate(self):
+        """Validate configuration."""
+        return validate_config()
+    
+    def __repr__(self):
+        return f"Config(sampling_rate={self.SAMPLING_RATE}, n_channels={self.N_CHANNELS})"

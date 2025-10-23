@@ -19,6 +19,7 @@ Author: Rebuilt for CMP9780M Assessment
 License: Proprietary (see root LICENSE)
 """
 
+from __future__ import annotations  # Defer type annotation evaluation
 import numpy as np
 from typing import Tuple, Optional, List, Dict, Union
 import logging

@@ -47,16 +47,49 @@ try:
     from .eeg_preprocessing import EEGPreprocessor
     from .eeg_features import EEGFeatureExtractor
     from .emotion_recognition_model import EmotionRecognitionModel
+    from .data_loaders import (
+        DEAPLoader,
+        SEEDLoader,
+        SimulatedEEGGenerator,
+        EEGDataset,
+        load_deap,
+        load_seed,
+        generate_simulated_data
+    )
+    from .music_recommendation import (
+        MusicRecommendationEngine,
+        EmotionCategory,
+        MusicPlatform,
+        Track,
+        create_recommendation_engine
+    )
     
     __all__ = [
+        # Core processing
         'Config',
         'EEGPreprocessor',
         'EEGFeatureExtractor',
         'EmotionRecognitionModel',
+        # Data loading
+        'DEAPLoader',
+        'SEEDLoader',
+        'SimulatedEEGGenerator',
+        'EEGDataset',
+        'load_deap',
+        'load_seed',
+        'generate_simulated_data',
+        # Music recommendation
+        'MusicRecommendationEngine',
+        'EmotionCategory',
+        'MusicPlatform',
+        'Track',
+        'create_recommendation_engine',
     ]
 except ImportError as e:
     # Modules not yet available
     __all__ = []
+    import warnings
+    warnings.warn(f"Failed to import some modules: {e}")
 
 # Package-level configuration
 import warnings
