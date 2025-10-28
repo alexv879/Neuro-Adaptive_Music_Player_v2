@@ -1,0 +1,17 @@
+# Hyperparameter Optimization Dependencies
+# ==========================================
+# Install all at once: pip install -r requirements_optimization.txt
+
+# Core optimization libraries
+keras-tuner>=1.4.6           # Bayesian optimization, Hyperband
+optuna>=3.5.0                # TPE optimization (state-of-the-art)
+
+# Visualization dependencies
+matplotlib>=3.8.0            # Basic plotting
+seaborn>=0.13.0              # Statistical visualizations
+pandas>=2.1.0                # Data manipulation
+plotly>=5.18.0               # Interactive Optuna plots
+kaleido>=0.2.1               # Static image export for plotly
+
+# Optional: Database backend for Optuna (better performance)
+sqlalchemy>=2.0.0            # Database ORM
