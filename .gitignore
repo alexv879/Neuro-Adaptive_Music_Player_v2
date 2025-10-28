@@ -185,10 +185,14 @@ examples/__pycache__/
 .openbci/
 device_cache/
 
-# Experiment results
+# Experiments
 results/
 experiments/
 outputs/
+
+# Assessment and Lectures (project-specific)
+assessment1/
+lectures/
 
 # Large temporary arrays
 temp_arrays/
