@@ -15,7 +15,7 @@ Usage:
     python examples/01_complete_pipeline.py --mode deap --subject 1
     python examples/01_complete_pipeline.py --mode real-time
 
-Author: Alexander V.
+Author: Alexandru Emanuel Vasile
 License: Proprietary
 Version: 2.0.0
 """
@@ -25,7 +25,7 @@ import argparse
 import logging
 import time
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 
 import numpy as np
 
@@ -144,32 +144,44 @@ class NeuroAdaptiveMusicPlayer:
     def process_trial(
         self,
         eeg_data: np.ndarray,
+        channel_names: List[str] = None,
         verbose: bool = True
     ) -> Tuple[EmotionCategory, float, np.ndarray]:
         """
         Process a single EEG trial through the complete pipeline.
-        
+
         Args:
             eeg_data: Raw EEG data (n_channels, n_samples)
+            channel_names: List of channel names (required for FAA features)
             verbose: Print progress information
-            
+
         Returns:
             Tuple of (emotion, confidence, features)
         """
         if verbose:
             logger.info(f"\nProcessing EEG trial: {eeg_data.shape}")
-        
+
+        # Use config channel names if not provided
+        if channel_names is None:
+            channel_names = self.config.CHANNEL_NAMES[:eeg_data.shape[0]]
+
         # Step 1: Preprocessing
         start_time = time.time()
         preprocessed = self.preprocessor.preprocess(eeg_data)
         preprocess_time = (time.time() - start_time) * 1000
-        
+
         if verbose:
             logger.info(f"  [1/4] Preprocessing complete ({preprocess_time:.2f}ms)")
-        
-        # Step 2: Feature extraction
+
+        # Step 2: Feature extraction (with channel names for FAA)
         start_time = time.time()
-        features_dict = self.feature_extractor.extract_all_features(preprocessed)
+        features_dict = self.feature_extractor.extract_all_features(
+            preprocessed,
+            channel_names=channel_names,
+            include_faa=True,
+            include_stats=False,
+            include_spectral=False
+        )
         features = self.feature_extractor.features_to_vector(features_dict, flatten=True)
         feature_time = (time.time() - start_time) * 1000
         
@@ -245,9 +257,16 @@ class NeuroAdaptiveMusicPlayer:
             
             # Get trial data
             eeg_data, true_label = dataset[i]
-            
+
+            # Get channel names from dataset
+            channel_names = dataset.channel_names if hasattr(dataset, 'channel_names') else None
+
             # Process through pipeline
-            emotion, confidence, features = self.process_trial(eeg_data, verbose=True)
+            emotion, confidence, features = self.process_trial(
+                eeg_data,
+                channel_names=channel_names,
+                verbose=True
+            )
             
             # Recommend and optionally play music
             track = self.music_engine.recommend(emotion, confidence=confidence)

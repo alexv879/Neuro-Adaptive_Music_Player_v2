@@ -12,7 +12,7 @@ Features:
     - Song history and recommendation logging
     - Mock recommendations for testing without Spotify
 
-Author: Alexander V.
+Author: Alexandru Emanuel Vasile
 License: Proprietary
 Version: 2.0.0
 """

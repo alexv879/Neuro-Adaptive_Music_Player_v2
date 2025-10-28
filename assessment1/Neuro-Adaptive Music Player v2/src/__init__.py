@@ -32,13 +32,13 @@ Example:
     >>> model.load_model('models/pretrained/deap_cnn_bilstm.h5')
     >>> emotion = model.predict(features)
 
-Author: Alexander V.
+Author: Alexandru Emanuel Vasile
 License: See LICENSE file
 Version: 2.0.0
 """
 
 __version__ = '2.0.0'
-__author__ = 'Alexander V.'
+__author__ = 'Alexandru Emanuel Vasile'
 __license__ = 'Proprietary'
 
 # Import main classes for convenience

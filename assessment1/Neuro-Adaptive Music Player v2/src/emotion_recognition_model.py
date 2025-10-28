@@ -21,12 +21,13 @@ License: Proprietary (see root LICENSE)
 
 from __future__ import annotations  # Defer type annotation evaluation
 import numpy as np
-from typing import Tuple, Optional, List, Dict, Union
+from typing import Tuple, Optional, List, Dict, Union, TYPE_CHECKING, Any
 import logging
 import pickle
 from pathlib import Path
 
 # TensorFlow/Keras imports with graceful fallback
+TENSORFLOW_AVAILABLE = False
 try:
     import tensorflow as tf
     from tensorflow import keras
@@ -37,8 +38,15 @@ try:
     from sklearn.metrics import classification_report, confusion_matrix
     TENSORFLOW_AVAILABLE = True
 except ImportError:
-    TENSORFLOW_AVAILABLE = False
     print("WARNING: TensorFlow not available. Model training/inference disabled.")
+    # Create stub classes for type checking
+    if TYPE_CHECKING:
+        from tensorflow import keras  # type: ignore
+        from sklearn.preprocessing import LabelEncoder  # type: ignore
+    else:
+        # Runtime stubs
+        keras = type('keras', (), {'Model': Any, 'callbacks': type('callbacks', (), {'History': Any, 'Callback': Any})})  # type: ignore
+        LabelEncoder = type('LabelEncoder', (), {})  # type: ignore
 
 # Import configuration
 import sys
@@ -589,11 +597,11 @@ class EmotionRecognitionModel:
     ) -> Union[np.ndarray, Tuple[np.ndarray, Dict]]:
         """
         Predict emotions from features.
-        
+
         Args:
             X: Features of shape (n_samples, n_features)
             return_probs: Return probability distributions
-            
+
         Returns:
             If return_probs=False:
                 np.ndarray: Predicted emotion labels
@@ -602,10 +610,10 @@ class EmotionRecognitionModel:
         """
         if self.model is None:
             raise ValueError("Model not built or loaded.")
-        
+
         # Predict
         predictions = self.model.predict(X, verbose=0)
-        
+
         # Handle different model architectures
         if isinstance(predictions, list):
             # Hierarchical model: [valence, arousal, emotion]
@@ -615,13 +623,13 @@ class EmotionRecognitionModel:
             emotion_probs = predictions
             valence_probs = None
             arousal_probs = None
-        
+
         # Get emotion class indices
         emotion_indices = np.argmax(emotion_probs, axis=1)
-        
+
         # Convert to labels
         emotion_labels = self.label_encoder.inverse_transform(emotion_indices)
-        
+
         if return_probs:
             probs_dict = {
                 'emotion': emotion_probs,
@@ -629,8 +637,46 @@ class EmotionRecognitionModel:
                 'arousal': arousal_probs
             }
             return emotion_labels, probs_dict
-        
+
         return emotion_labels
+
+    def predict_proba(
+        self,
+        X: np.ndarray
+    ) -> np.ndarray:
+        """
+        Predict emotion probabilities from features.
+
+        This method is useful for getting confidence scores for predictions.
+
+        Args:
+            X: Features of shape (n_samples, n_features)
+
+        Returns:
+            np.ndarray: Probability distributions of shape (n_samples, n_classes)
+                       For hierarchical models, returns emotion probabilities only
+
+        Example:
+            >>> probs = model.predict_proba(X_test)
+            >>> confidence = np.max(probs, axis=1)  # Get max probability per sample
+            >>> print(f"Average confidence: {np.mean(confidence):.2%}")
+        """
+        if self.model is None:
+            raise ValueError("Model not built or loaded.")
+
+        # Predict
+        predictions = self.model.predict(X, verbose=0)
+
+        # Handle different model architectures
+        if isinstance(predictions, list):
+            # Hierarchical model: [valence, arousal, emotion]
+            # Return emotion probabilities (index 2)
+            emotion_probs = predictions[2]
+        else:
+            # Single-output model
+            emotion_probs = predictions
+
+        return emotion_probs
     
     def evaluate(
         self,

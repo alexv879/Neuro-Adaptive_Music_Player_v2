@@ -14,7 +14,7 @@ Key Features:
 - Graceful fallback when API unavailable
 - Integration with Spotify/YouTube/local playback via existing music engine
 
-Author: Alexander V.
+Author: Alexandru Emanuel Vasile
 License: Proprietary
 Version: 2.0.0
 """

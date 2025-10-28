@@ -13,7 +13,7 @@ Features:
     - Caching for faster repeated loading
     - Metadata extraction (sampling rate, channel names, etc.)
 
-Author: Alexander V.
+Author: Alexandru Emanuel Vasile
 License: Proprietary
 Version: 2.0.0
 """

@@ -72,7 +72,7 @@ GRADIENT_THRESHOLD: float = 50.0  # microV/sample - Detect rapid jumps
 FLATLINE_THRESHOLD: float = 1e-6  # microV - Detect dead channels
 
 # =============================================================================
-# FREQUENCY BAND DEFINITIONS (Standard IEEEG nomenclature)
+# FREQUENCY BAND DEFINITIONS (Standard EEG/IFCN nomenclature)
 # =============================================================================
 
 FREQUENCY_BANDS: Dict[str, Tuple[float, float]] = {
@@ -117,9 +117,16 @@ FAA_METHOD: str = 'log_power'  # Options: 'log_power', 'raw_power', 'normalized'
 MODEL_NAME: str = "CNN_BiLSTM_Hierarchical"
 
 # Input shape parameters
-N_CHANNELS: int = 2  # Default for minimal setup (Fp1, Fp2)
+N_CHANNELS: int = 32  # Default for full EEG setup (use 2 for minimal: Fp1, Fp2)
 N_TIMEPOINTS: int = int(WINDOW_SIZE * SAMPLING_RATE)  # 512 samples
-N_FEATURES: int = 11  # 5 bands x 2 channels + 1 FAA
+# N_FEATURES is dynamically calculated based on actual feature extraction:
+# - Band power: 5 bands × N_CHANNELS = 5 × 32 = 160 features
+# - FAA: len(FAA_PAIRS) = 3 features (if channel_names provided)
+# - Statistics (optional): 6 × N_CHANNELS = 192 features
+# - Spectral (optional): N_CHANNELS = 32 features
+# Default (band power + FAA only): 160 + 3 = 163 features
+# With stats: 160 + 3 + 192 = 355 features
+N_FEATURES: int = 163  # Default: 5 bands × 32 channels + 3 FAA pairs
 
 # CNN parameters
 CNN_FILTERS: List[int] = [64, 128, 256]  # Progressive feature extraction
@@ -274,36 +281,83 @@ TRACK_MEMORY: bool = False  # Track memory usage
 # VALIDATION AND SANITY CHECKS
 # =============================================================================
 
+def calculate_n_features(
+    n_channels: int = N_CHANNELS,
+    n_bands: int = 5,
+    n_faa_pairs: int = 3,
+    include_statistics: bool = False,
+    include_spectral: bool = False
+) -> int:
+    """
+    Calculate the number of features based on extraction parameters.
+
+    Args:
+        n_channels: Number of EEG channels
+        n_bands: Number of frequency bands (default: 5 for delta, theta, alpha, beta, gamma)
+        n_faa_pairs: Number of FAA channel pairs (default: 3)
+        include_statistics: Whether to include statistical features (mean, std, skew, kurtosis, ptp, rms)
+        include_spectral: Whether to include spectral entropy features
+
+    Returns:
+        int: Total number of features
+
+    Example:
+        >>> # For 32 channels with band power and FAA only
+        >>> n_features = calculate_n_features(32, include_statistics=False)
+        >>> print(n_features)  # 163 (160 band powers + 3 FAA)
+
+        >>> # For 32 channels with all features
+        >>> n_features = calculate_n_features(32, include_statistics=True, include_spectral=True)
+        >>> print(n_features)  # 387 (160 + 3 + 192 + 32)
+    """
+    # Band power features: n_bands × n_channels
+    band_power_features = n_bands * n_channels
+
+    # FAA features: n_faa_pairs (only if channel names support FAA)
+    faa_features = n_faa_pairs
+
+    # Statistical features: 6 statistics × n_channels
+    # (mean, std, skewness, kurtosis, ptp, rms)
+    statistical_features = 6 * n_channels if include_statistics else 0
+
+    # Spectral features: n_channels (entropy for each channel)
+    spectral_features = n_channels if include_spectral else 0
+
+    total = band_power_features + faa_features + statistical_features + spectral_features
+
+    return total
+
+
 def validate_config() -> bool:
     """
     Validate configuration parameters for consistency.
-    
+
     Returns:
         bool: True if configuration is valid, raises ValueError otherwise.
     """
     # Check sampling rate vs bandpass high
     if BANDPASS_HIGH >= SAMPLING_RATE / 2:
         raise ValueError(f"BANDPASS_HIGH ({BANDPASS_HIGH}) must be < Nyquist frequency ({SAMPLING_RATE/2})")
-    
+
     # Check window size
     if WINDOW_SIZE <= 0:
         raise ValueError(f"WINDOW_SIZE must be positive, got {WINDOW_SIZE}")
-    
+
     # Check overlap
     if not 0 <= OVERLAP < 1:
         raise ValueError(f"OVERLAP must be in [0, 1), got {OVERLAP}")
-    
+
     # Check frequency bands
     for band_name, (low, high) in FREQUENCY_BANDS.items():
         if low >= high:
             raise ValueError(f"Invalid band {band_name}: low={low} >= high={high}")
         if high > BANDPASS_HIGH:
             raise ValueError(f"Band {band_name} high ({high}) exceeds BANDPASS_HIGH ({BANDPASS_HIGH})")
-    
+
     # Check emotion classes
     if len(EMOTION_LABELS) != EMOTION_CLASSES:
         raise ValueError(f"EMOTION_LABELS length ({len(EMOTION_LABELS)}) != EMOTION_CLASSES ({EMOTION_CLASSES})")
-    
+
     return True
 
 

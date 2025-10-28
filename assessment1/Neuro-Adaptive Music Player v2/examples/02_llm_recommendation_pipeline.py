@@ -23,7 +23,7 @@ Usage:
     # With real EEG data
     python examples/02_llm_recommendation_pipeline.py --mode deap --subject 1
 
-Author: Alexander V.
+Author: Alexandru Emanuel Vasile
 License: Proprietary
 Version: 2.0.0
 """
