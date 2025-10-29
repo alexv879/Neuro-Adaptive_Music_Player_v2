@@ -62,7 +62,7 @@ jobs:
       run: |
         python -c "from src.config import Config; c = Config(); c.validate(); print('✓ Config module working')"
         python -c "from src.eeg_preprocessing import EEGPreprocessor; import numpy as np; p = EEGPreprocessor(256); d = p.preprocess(np.random.randn(32, 2560)); print('✓ Preprocessing module working')"
-        python -c "from src.eeg_features import EEGFeatureExtractor; import numpy as np; e = EEGFeatureExtractor(256); f = e.extract_features(np.random.randn(32, 2560)); print('✓ Feature extraction module working')"
+        python -c "from src.eeg_features import EEGFeatureExtractor; import numpy as np; e = EEGFeatureExtractor(256); f = e.extract_all_features(np.random.randn(32, 2560)); print('✓ Feature extraction module working')"
         python -c "from src.emotion_recognition_model import EmotionRecognitionModel; m = EmotionRecognitionModel((167,)); m.build_model('dense'); print('✓ Model module working')"
 
   lint:
